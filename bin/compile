@@ -162,8 +162,12 @@ if test -d $cache_dir/ruby/.gem; then
   status "Restoring ruby gems directory from cache"
   cp -r $cache_dir/ruby/.gem $build_dir
   HOME=$build_dir gem update compass --user-install --no-rdoc --no-ri
+  HOME=$build_dir gem update sass --user-install --no-rdoc --no-ri
+  HOME=$build_dir gem update slim --user-install --no-rdoc --no-ri
 else
   HOME=$build_dir gem install compass --user-install --no-rdoc --no-ri
+  HOME=$build_dir gem install sass --user-install --no-rdoc --no-ri
+  HOME=$build_dir gem install slim --user-install --no-rdoc --no-ri
 fi
 
 # cache ruby gems compass
@@ -185,17 +189,35 @@ else
   echo "export PATH=\"\$HOME/.gem/ruby/2.2.0/bin:\$PATH\"" > $build_dir/.profile.d/ruby.sh
 fi
 
-# Check and run Grunt
+# # Check and run Grunt
+# (
+#   if $is_gruntfile_present; then
+#     # get the env vars
+#     if [ -d "$env_dir" ]; then
+#       status "Exporting config vars to environment"
+#       export_env_dir $env_dir
+#     fi
+
+#     status "Running grunt heroku:$NODE_ENV task"
+#     $build_dir/node_modules/.bin/grunt heroku:$NODE_ENV
+#   fi
+# )
+
+# Check and run gulp
 (
-  if $is_gruntfile_present; then
+  if [ -f $build_dir/gulpfile.js ]; then
     # get the env vars
     if [ -d "$env_dir" ]; then
       status "Exporting config vars to environment"
       export_env_dir $env_dir
     fi
 
-    status "Running grunt heroku:$NODE_ENV task"
-    $build_dir/node_modules/.bin/grunt heroku:$NODE_ENV
+    # Install gulp locally
+    npm install gulp
+    echo "-----> Found gulpfile, running gulp heroku:$NODE_ENV task"
+    $build_dir/node_modules/.bin/gulp heroku:$NODE_ENV
+  else
+    echo "-----> No gulpfile found"
   fi
 )
 
