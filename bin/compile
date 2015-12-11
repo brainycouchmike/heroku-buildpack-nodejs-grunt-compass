@@ -2,7 +2,7 @@
 
 set -e            # fail fast
 set -o pipefail   # don't ignore exit codes when piping output
-# set -x          # enable debugging
+set -x          # enable debugging
 
 # Configure directories
 build_dir="$1/client"
@@ -59,23 +59,23 @@ npm install bower
 echo "-----> Doing bower install thing"
 $build_dir/node_modules/.bin/bower install
 
-# is_gruntfile_present= [ -f $build_dir/grunt.js ] || [ -f $build_dir/Gruntfile.js ] || [ -f $build_dir/Gruntfile.coffee ];
-# if $is_gruntfile_present; then
-#   status "Found Gruntfile"
-#   status "Augmenting package.json with grunt and grunt-cli"
-#   # Do this because we want to cache it with other node_modules. Otherwise it will be pruned.
-#   # It doesn't matter if grunt and/or grunt-cli is already there
-#   awk '{ if ( $0 ~ /"dependencies".*/ ) {
-#               printf "%s\n%s\n%s\n", $0, "\"grunt-cli\": \"*\",", "\"grunt\": \"*\",";
-#         } else {
-#               print $0;
-#         }
-#     }' package.json > tmp-package.json;
-#   cp tmp-package.json package.json;
-#   rm tmp-package.json;
-# else
-#   status "No Gruntfile (grunt.js, Gruntfile.js, Gruntfile.coffee) found"
-# fi
+is_gulpfile_present= [ -f $build_dir/gulp.js ] || [ -f $build_dir/gulpfile.js ] || [ -f $build_dir/gulpfile.coffee ];
+if $is_gulpfile_present; then
+  status "Found Gulpfile"
+  status "Augmenting package.json with gulp and gulp-util"
+  # Do this because we want to cache it with other node_modules. Otherwise it will be pruned.
+  # It doesn't matter if gulp and/or gulp-util is already there
+  awk '{ if ( $0 ~ /"dependencies".*/ ) {
+              printf "%s\n%s\n%s\n", $0, "\"gulp-util\": \"*\",", "\"gulp\": \"*\",";
+        } else {
+              print $0;
+        }
+    }' package.json > tmp-package.json;
+  cp tmp-package.json package.json;
+  rm tmp-package.json;
+else
+  status "No Gulpfile (gulp.js, gulpfile.js, gulpfile.coffee) found"
+fi
 
 
 # If node_modules directory is checked into source control then
